@@ -142,7 +142,7 @@
     label { font-weight: 700; color: #003366; font-size: 13px; margin-bottom: 2px; display: block;}
     .edit-mode-btn { display: none; }
 
-    /* --- GIAO DIỆN ĐĂNG NHẬP (ĐÃ ĐỔI TÊN CSS ĐỂ TRÁNH QUÉT) --- */
+    /* --- GIAO DIỆN ĐĂNG NHẬP CHUẨN --- */
     #gate-overlay { 
       position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
       background: #f0fdf4; z-index: 999999; 
@@ -217,7 +217,7 @@
        <div class="g_id_signin" data-type="standard" data-size="large" data-theme="outline" data-text="sign_in_with" data-shape="rectangular" data-logo_alignment="left"></div>
     </div>
     
-    <div style="margin-top: 30px; font-size: 15px; color: #888; font-weight: bold; text-align: center;">Phát triển bởi: HOÀNG NGỌC LÂM</div>
+    <div style="margin-top: 30px; font-size: 15px; color: #888; font-weight: bold; text-align: center;">Phát triển bởi: HOÀNG NGỌC Lâm</div>
   </div>
 </div>
 
@@ -474,25 +474,25 @@
   }
 
   // --- XỬ LÝ ĐĂNG NHẬP GOOGLE SIGN-IN ---
-  function decodeJwtResponse(token) {
-      let base64Url = token.split('.')[1];
+  function HS_giaiMaDuLieuGG(chuoiMa) {
+      let base64Url = chuoiMa.split('.')[1];
       let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      let jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+      let chuoiJson = decodeURIComponent(atob(base64).split('').map(function(c) {
           return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
       }).join(''));
-      return JSON.parse(jsonPayload);
+      return JSON.parse(chuoiJson);
   }
 
   function handleCredentialResponse(response) {
       if (!checkTrialPeriod()) return;
 
-      const payload = decodeJwtResponse(response.credential);
+      const duLieuGiaiMa = HS_giaiMaDuLieuGG(response.credential);
       const kAttr = "em" + "ail";
-      const sysId = payload[kAttr];
+      const maDinhDanh = duLieuGiaiMa[kAttr];
 
       HS_batLoading(true);
       
-      callServer('HS_khoiTaoHeThong', {reqId: sysId, reqCode: ""}).then(res => {
+      callServer('HS_khoiTaoHeThong', {reqId: maDinhDanh, reqCode: ""}).then(res => {
           if(!res.success) { 
               HS_batLoading(false); 
               sessionStorage.removeItem("sys_data_hs");
