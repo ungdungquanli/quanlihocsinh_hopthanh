@@ -59,10 +59,39 @@
     input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
     input[type=number] { -moz-appearance: textfield; }
     
-    /* Giao diện nâng cấp góc chú thích UI thành tích */
+    /* ======================================================= */
+    /* GIAO DIỆN NÂNG CẤP TÙY CHỈNH TOOLTIP THÀNH TÍCH (CÓ SCROLL) */
+    /* ======================================================= */
     .note-corner { position: absolute; top: 0; right: 0; width: 0; height: 0; border-left: 10px solid transparent; border-top: 10px solid #dc3545; pointer-events: none; z-index: 5; }
     .hks-input-thanhtich { cursor: pointer; }
     .hks-input-thanhtich:disabled { cursor: not-allowed !important; }
+
+    .hks-tooltip-wrap { position: relative; cursor: pointer; }
+    .hks-tooltip-wrap .hks-tooltip-content {
+        visibility: hidden; opacity: 0;
+        width: max-content; min-width: 250px; max-width: 380px;
+        max-height: 200px; overflow-y: auto; /* Tạo thanh cuộn nếu vượt 200px */
+        background-color: #ffffff; color: #333;
+        text-align: left; border-radius: 6px; padding: 10px 12px;
+        position: absolute; z-index: 99999;
+        bottom: 110%; left: 50%; transform: translateX(-50%);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        border: 2px solid #b71c1c;
+        font-size: 13.5px; line-height: 1.5; font-weight: normal;
+        transition: opacity 0.2s, visibility 0.2s;
+        white-space: normal; /* Cho phép chữ tự xuống dòng nếu quá dài */
+    }
+    .hks-tooltip-wrap .hks-tooltip-content::after {
+        content: ""; position: absolute; top: 100%; left: 50%;
+        margin-left: -7px; border-width: 7px; border-style: solid;
+        border-color: #b71c1c transparent transparent transparent;
+    }
+    .hks-tooltip-wrap:hover .hks-tooltip-content { visibility: visible; opacity: 1; }
+    /* Tùy chỉnh thanh cuộn của Tooltip mượt mà */
+    .hks-tooltip-content::-webkit-scrollbar { width: 6px; }
+    .hks-tooltip-content::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 5px; }
+    .hks-tooltip-content::-webkit-scrollbar-thumb { background: #b71c1c; border-radius: 5px; }
+    /* ======================================================= */
 
     .filter-box { background: rgba(255,255,255,0.9); border: 1px solid #aaa; border-left: 5px solid #b71c1c; padding: 10px; margin-bottom: 10px; border-radius: 4px; }
     label { font-weight: 700; color: #003366; font-size: 13px; margin-bottom: 2px; display: block;}
@@ -1036,7 +1065,6 @@
 
   function hks_dinhDangOChua_fn(val) { return val > 0 ? `<span class="has-val">${val}</span>` : `<span class="zero-val">0</span>`; }
 
-  // THUẬT TOÁN ĐÃ ĐƯỢC ĐỒNG BỘ CẤU TRÚC KÉP: { c: ..., n: [...] }
   function hks_khoiTaoMauThanhTich_fn() {
       return {1: {c:0, n:[]}, 2: {c:0, n:[]}, 3: {c:0, n:[]}, 4: {c:0, n:[]}};
   }
@@ -1051,7 +1079,6 @@
       return obj;
   }
 
-  // THUẬT TOÁN ĐÃ ĐƯỢC ĐỒNG BỘ: Nhận và Gộp Mảng Kép từ Back-end
   function hks_tinhTongGop_fn(goc, them) {
       goc.tongSo += them.tongSo || 0; goc.danToc += them.danToc || 0;
       goc.nu += them.nu || 0; goc.nuDanToc += them.nuDanToc || 0;
@@ -1109,27 +1136,31 @@
       </tr>`;
   }
 
-  // TÍNH NĂNG MỚI: Tự động vẽ Góc đỏ Note-Corner và Tooltip
+  // =======================================================
+  // TÍNH NĂNG MỚI: CUSTOM TOOLTIP CÓ THANH CUỘN BẰNG CSS & HTML
+  // Đã loại bỏ thuộc tính title mặc định gây vỡ/cắt chữ
+  // =======================================================
   function hks_taoTdThanhTich_fn(tt) {
       if (!tt || tt.c === 0) return `<td class="col-compact"><span class="zero-val">0</span></td>`;
 
       let val = tt.c;
       let notes = tt.n || [];
       let noteHtml = '';
-      let titleAttr = '';
+      let customTooltipHtml = '';
       
       let filteredNotes = notes.filter(n => n && String(n).trim() !== '');
       
       if (filteredNotes.length > 0) {
-          // Định dạng từng dòng (&#10;) để hiển thị mượt mà trên Tooltip
-          let noteText = filteredNotes.join('&#10;').replace(/"/g, '&quot;');
-          titleAttr = `title="Thông tin:&#10;${noteText}"`;
+          // Xử lý tạo nội dung HTML nội tuyến cho Custom Tooltip
+          let noteText = filteredNotes.join('<br>').replace(/"/g, '&quot;');
+          customTooltipHtml = `<div class="hks-tooltip-content"><div style="font-weight:bold; color:#003366; margin-bottom:5px; border-bottom:1px solid #ccc; padding-bottom:3px;">📋 Chi tiết thành tích:</div>${noteText}</div>`;
           noteHtml = `<div class="note-corner"></div>`;
       }
       
-      return `<td class="col-compact" style="position: relative; cursor: pointer;" ${titleAttr}>
+      return `<td class="col-compact hks-tooltip-wrap" style="position: relative;">
           <span class="has-val">${val}</span>
           ${noteHtml}
+          ${customTooltipHtml}
       </td>`;
   }
 
