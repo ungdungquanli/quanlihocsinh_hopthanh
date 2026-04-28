@@ -1184,7 +1184,7 @@
       
       if (filteredNotes.length > 0) {
           let noteText = filteredNotes.join('<br>').replace(/"/g, '&quot;');
-          let customTooltipHtml = `<div style="font-weight:bold; color:#003366; margin-bottom:8px; border-bottom:1px dashed #ccc; padding-bottom:5px; font-size:16px;">📋 DANH SÁCH CHI TIẾT THÀNH TÍCH:</div>${noteText}`;
+          let customTooltipHtml = `<div style="font-weight:bold; color:#003366; margin-bottom:8px; border-bottom:1px dashed #ccc; padding-bottom:5px; font-size:16px;">📋 THÔNG TIN CHI TIẾT THÀNH TÍCH:</div>${noteText}`;
           
           // Mã hóa HTML để an toàn truyền qua tham số hàm
           let encodedHtml = encodeURIComponent(customTooltipHtml);
